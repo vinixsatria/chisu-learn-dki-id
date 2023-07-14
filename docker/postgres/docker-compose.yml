@@ -1,0 +1,64 @@
+---
+version: "3.3"
+
+services:
+  primary:
+    hostname: 'primary'
+    image: crunchydata/crunchy-postgres:centos8-13.6-4.7.5
+    environment:
+    - MODE=postgres
+    - PGHOST=/tmp
+      #- MAX_CONNECTIONS=1024
+      #- MAX_WAL_SENDERS=5
+    - PG_MODE=primary
+    - PG_PRIMARY_USER=primaryuser
+    - PG_PRIMARY_PASSWORD=CH1SUDB
+    - PG_DATABASE=dhis_40
+    - PG_USER=dhis
+    - PG_PASSWORD=CH1SUDB
+    - PG_ROOT_PASSWORD=CH1SUDB
+    - PG_PRIMARY_PORT=5432
+    volumes:
+    - pg-primary-vol:/pgdata
+    ports:
+      - "5432:5432"
+    networks:
+    - chisunet
+    deploy:
+      placement:
+        constraints:
+        - node.labels.type == primary
+        - node.role == worker
+  replica:
+    image: crunchydata/crunchy-postgres:centos8-13.6-4.7.5
+    environment:
+    - MODE=postgres
+    - PGHOST=/tmp
+      #- MAX_CONNECTIONS=1024
+      #- MAX_WAL_SENDERS=5
+    - PG_MODE=replica
+    - PG_PRIMARY_HOST=primary
+    - PG_PRIMARY_PORT=5432
+    - PG_PRIMARY_USER=primaryuser
+    - PG_PRIMARY_PASSWORD=CH1SUDB
+    - PG_DATABASE=dhis_40
+    - PG_USER=dhis
+    - PG_PASSWORD=CH1SUDB
+    - PG_ROOT_PASSWORD=CH1SUDB
+    volumes:
+    - pg-replica-vol:/pgdata
+    ports:
+    - "5432"
+    networks:
+    - chisunet
+    deploy:
+      placement:
+        constraints:
+        - node.labels.type != primary
+        - node.role == worker
+networks:
+  chisunet:
+
+volumes:
+  pg-primary-vol:
+  pg-replica-vol:

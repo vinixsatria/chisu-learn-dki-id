@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  fhir:
+    #container_name: satusehat-fhir
+    image: 'hapiproject/hapi:latest'
+    ports:
+      - '8081:8080'
+    configs:
+      - source: hapi
+        target: /app/config/application.yaml
+    networks:
+      - fhirnet
+
+configs:
+  hapi:
+     file: ./application.yaml
+
+networks:
+  fhirnet:

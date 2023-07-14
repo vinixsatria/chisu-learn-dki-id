@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  mapper:
+    image: jembi/openhim-mediator-mapping:latest
+    #image: kemenkesri/openhim-mediator-mapping:latest
+    environment:
+      - OPENHIM_URL=https://10.104.0.2:8080
+      - OPENHIM_PASSWORD=chisu
+      - MONGO_URL=mongodb://10.104.0.2:27017,10.104.0.2:27018,10.104.0.2:27019/openhim?replicaSet=mongo-set
+    ports:
+      - 3003:3003
+    networks:
+      - mappernet
+
+networks:
+  mappernet:

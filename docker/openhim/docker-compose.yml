@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+  openhim-core:
+    image: jembi/openhim-core:latest
+    environment:
+      - mongo_url=mongodb://10.104.0.2:27017,10.104.0.2:27018,10.104.0.2:27019/openhim?replicaSet=mongo-set
+      - mongo_atnaUrl=mongodb://10.104.0.2:27017,10.104.0.2:27018,10.104.0.2:27019/openhim?replicaSet=mongo-set
+      - api_authenticationTypes=["token", "basic", "local"]
+      - authentication_enableCustomTokenAuthentication=true
+      - authentication_enableJWTAuthentication=true
+      - authentication_jwt_secretOrPublicKey=secret
+      - authentication_jwt_algorithms=HS256
+      - authentication_jwt_issuer=openhim
+      - router_externalHostname=143.198.221.36
+    ports:
+      - '8080:8080'
+      - '5000:5000'
+      - '5001:5001'
+    networks:
+      - openhimnet
+    #healthcheck:
+    #  test: 'curl -sSk https://openhim-core:8080/heartbeat || exit 1'
+    #  interval: 30s
+    #  timeout: 30s
+    #  retries: 3
+
+  openhim-console:
+    image: jembi/openhim-console:latest
+    environment:
+      - OPENHIM_CORE_MEDIATOR_HOSTNAME=143.198.221.36
+      - OPENHIM_MEDIATOR_API_PORT=90
+    networks:
+      - openhimnet
+    ports:
+      - '9000:80'
+    depends_on:
+      - openhim-core
+    #healthcheck:
+    #  test: 'curl -sS http://openhim-console || exit 1'
+    #  interval: 30s
+    #  timeout: 30s
+    #  retries: 3
+
+networks:
+  openhimnet:
